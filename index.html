@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>找水果格子 - 记忆类益智游戏</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="left-panel">
+            <div class="game-title">lyjy找水果游戏</div>
+            <div class="custom-mode-btn">
+                <button id="custom-mode-btn">自定义模式</button>
+            </div>
+            
+            <div class="game-info">
+                <div class="level-info">
+                    <span>当前轮数: <span id="level">1</span></span>
+                    <span>目标数量: <span id="target-count">2</span></span>
+                </div>
+                <div class="countdown">
+                    <span>倒计时: <span id="countdown">60</span>秒</span>
+                </div>
+            </div>
+            
+            <div class="target-sequence" id="target-sequence">
+                <div class="sequence-header">
+                    <h3>目标序列</h3>
+                    <div class="sequence-timer" id="sequence-timer">5</div>
+                </div>
+                <div class="sequence-container" id="sequence-container"></div>
+            </div>
+            
+            <div class="game-controls">
+                <button id="start-btn">开始游戏</button>
+                <button id="reset-btn">重置游戏</button>
+                <button id="pause-btn">暂停</button>
+                <button id="tutorial-btn">教程</button>
+            </div>
+            
+            <div class="game-message" id="game-message"></div>
+        </div>
+        
+        <!-- 自定义模式模态框 -->
+        <div class="modal" id="custom-modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>自定义游戏模式</h2>
+                <div class="custom-options">
+                    <div class="option-group">
+                        <label>格子大小:</label>
+                        <select id="board-size">
+                            <option value="6">6×6</option>
+                            <option value="5">5×5</option>
+                            <option value="4">4×4</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <label>目标序列显示时间 (秒):</label>
+                        <input type="number" id="sequence-time" min="1" max="30" value="8">
+                    </div>
+                    <div class="option-group">
+                        <label>第一轮时间 (秒):</label>
+                        <input type="number" id="level1-time" min="10" max="300" value="60">
+                    </div>
+                    <div class="option-group">
+                        <label>第二轮时间 (秒):</label>
+                        <input type="number" id="level2-time" min="10" max="300" value="75">
+                    </div>
+                    <div class="option-group">
+                        <label>第三轮时间 (秒):</label>
+                        <input type="number" id="level3-time" min="10" max="300" value="90">
+                    </div>
+                    <div class="option-group">
+                        <label>第四轮时间 (秒):</label>
+                        <input type="number" id="level4-time" min="10" max="300" value="120">
+                    </div>
+                    <div class="option-group">
+                        <label>水果显示时间 (秒):</label>
+                        <input type="number" id="fruit-time" min="1" max="15" value="8">
+                    </div>
+                    <div class="option-group">
+                        <label>失败后:</label>
+                        <select id="failure-behavior">
+                            <option value="current-level">从当前轮重新开始</option>
+                            <option value="first-level">从第一轮重新开始</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button id="start-custom-btn">开始自定义游戏</button>
+                    <button id="back-btn">返回主游戏</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 教程模态框 -->
+        <div class="modal" id="tutorial-modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>游戏教程</h2>
+                <div class="tutorial-content">
+                    <div class="tutorial-section">
+                        <h3>游戏目标</h3>
+                        <p>在限定时间内，按照目标序列的顺序，找到并验证相同的水果格子。</p>
+                    </div>
+                    <div class="tutorial-section">
+                        <h3>游戏规则</h3>
+                        <ol>
+                            <li>游戏分为4轮，每轮的目标数量分别为：2、4、6、8个水果</li>
+                            <li>每轮开始前，会显示目标序列，你需要记住这些水果的顺序</li>
+                            <li>目标序列显示结束后，点击格子上的"查看"按钮来查看里面的水果</li>
+                            <li>当你找到目标序列中的水果时，点击"验证"按钮进行验证</li>
+                            <li>每次验证需要选择两个相同的水果格子</li>
+                            <li>必须按照目标序列的顺序进行验证</li>
+                            <li>每轮有时间限制，超时则挑战失败</li>
+                            <li>验证错误也会导致挑战失败</li>
+                        </ol>
+                    </div>
+                    <div class="tutorial-section">
+                        <h3>操作说明</h3>
+                        <ul>
+                            <li><strong>开始游戏</strong>：开始新一轮游戏</li>
+                            <li><strong>重置游戏</strong>：重置当前游戏</li>
+                            <li><strong>暂停</strong>：暂停当前游戏</li>
+                            <li><strong>自定义模式</strong>：调整游戏参数，如棋盘大小、时间限制等</li>
+                        </ul>
+                    </div>
+                    <div class="tutorial-section">
+                        <h3>自定义模式</h3>
+                        <p>在自定义模式中，你可以调整以下参数：</p>
+                        <ul>
+                            <li>棋盘大小：4×4、5×5、6×6</li>
+                            <li>目标序列显示时间</li>
+                            <li>每轮的时间限制</li>
+                            <li>水果显示时间</li>
+                            <li>失败后的行为：从当前轮重新开始或从第一轮重新开始</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button id="close-tutorial-btn">我知道了</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-panel">
+            <div class="game-board" id="game-board"></div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
