@@ -33,6 +33,10 @@ class FruitMemoryGame {
         this.tutorialModal = document.getElementById('tutorial-modal');
         this.closeTutorialBtn = document.getElementById('close-tutorial-btn');
         
+        // 横屏模式元素
+        this.orientationBtn = document.getElementById('orientation-btn');
+        this.isLandscapeMode = false;
+        
         this.fruits = ['🍎', '🍌', '🍇', '🍊', '🍋', '🍒', '🍓', '🍑', '🍍', '🥥', '🥝', '🥭'];
         this.boardSize = 6;
         this.totalCells = this.boardSize * this.boardSize;
@@ -93,6 +97,7 @@ class FruitMemoryGame {
         this.resetBtn.addEventListener('click', () => this.resetGame());
         this.pauseBtn.addEventListener('click', () => this.togglePause());
         this.tutorialBtn.addEventListener('click', () => this.showTutorial());
+        this.orientationBtn.addEventListener('click', () => this.toggleLandscapeMode());
     }
     
     bindCustomModeEvents() {
@@ -138,6 +143,24 @@ class FruitMemoryGame {
     
     showTutorial() {
         this.tutorialModal.style.display = 'block';
+    }
+    
+    toggleLandscapeMode() {
+        this.isLandscapeMode = !this.isLandscapeMode;
+        const gameContainer = document.querySelector('.game-container');
+        const body = document.body;
+        
+        if (this.isLandscapeMode) {
+            gameContainer.classList.add('landscape');
+            body.classList.add('landscape-mode');
+            this.orientationBtn.textContent = '竖屏模式';
+            this.showMessage('已切换到横屏模式', 'info');
+        } else {
+            gameContainer.classList.remove('landscape');
+            body.classList.remove('landscape-mode');
+            this.orientationBtn.textContent = '横屏模式';
+            this.showMessage('已切换到竖屏模式', 'info');
+        }
     }
     
     loadCustomSettings() {
@@ -258,6 +281,8 @@ class FruitMemoryGame {
         } else {
             this.resetGameState(true);
             this.createBoard();
+            this.predictAllTargetSequences();
+            this.generateBoardWithRequiredFruits();
             this.updateUI();
             this.showMessage('游戏已重置', 'info');
         }
@@ -323,10 +348,17 @@ class FruitMemoryGame {
         for (let level = 1; level <= this.levelTargetCounts.length; level++) {
             const targetCount = this.levelTargetCounts[level - 1] || 8;
             const sequence = [];
+            const usedFruits = new Set();
             
             for (let i = 0; i < targetCount; i++) {
-                const randomFruit = this.fruits[Math.floor(Math.random() * this.fruits.length)];
+                let randomFruit;
+                // 确保不会重复使用相同的水果
+                do {
+                    randomFruit = this.fruits[Math.floor(Math.random() * this.fruits.length)];
+                } while (usedFruits.has(randomFruit));
+                
                 sequence.push(randomFruit);
+                usedFruits.add(randomFruit);
             }
             
             this.allTargetSequences.push(sequence);
@@ -335,23 +367,15 @@ class FruitMemoryGame {
     
     // 生成包含所有需要水果的棋盘
     generateBoardWithRequiredFruits() {
-        // 收集所有轮次需要的唯一水果类型
-        const requiredFruits = new Set();
-        this.allTargetSequences.forEach(sequence => {
-            sequence.forEach(fruit => {
-                requiredFruits.add(fruit);
-            });
-        });
-        
-        const requiredFruitArray = Array.from(requiredFruits);
+        // 确保每种水果的数量都是3个
         const board = [];
-        
-        // 确保每种需要的水果至少有一个
-        requiredFruitArray.forEach(fruit => {
-            board.push(fruit);
+        this.fruits.forEach(fruit => {
+            for (let i = 0; i < 3; i++) {
+                board.push(fruit);
+            }
         });
         
-        // 填充剩余的格子
+        // 如果格子数量超过水果总数，用随机水果填充
         while (board.length < this.totalCells) {
             const randomFruit = this.fruits[Math.floor(Math.random() * this.fruits.length)];
             board.push(randomFruit);

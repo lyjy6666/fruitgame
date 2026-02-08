@@ -206,6 +206,33 @@ button {
     background-color: #138496;
 }
 
+#orientation-btn {
+    background-color: #fd7e14;
+    color: white;
+}
+
+#orientation-btn:hover {
+    background-color: #e85d04;
+}
+
+/* 横屏模式样式 */
+.game-container.landscape {
+    transform: rotate(-90deg);
+    transform-origin: center;
+    width: 100vh;
+    height: 100vw;
+    max-width: none;
+    max-height: none;
+}
+
+body.landscape-mode {
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .game-message {
     padding: 10px;
     border-radius: 5px;
